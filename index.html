@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="./css/global.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+</head>
+
+<body>
+    <!-- Cabeçalho da pagina -->
+    <header class="w-auto p-1 bg-dark">
+        <h1 class="text-white text-center">Transformations</h1>
+    </header>
+
+    <div class="float-left w-50 p-3">
+
+        <!-- Inputs para a manipulação dos objetos -->
+        <div class="float-left w-50 pr-2 pl-2 border-right border-left border-secondary h-90">
+            <h1 class="text-center bg-secondary text-light rounded">Objects</h1>
+            <div class="w-100">
+                <label for="obj">SELECT OBJECT</label>
+            </div>
+            <div class="float-left w-100 pb-3">
+                <select class="custom-select" id="obj"></select>
+            </div>
+
+            <div class="w-100">
+                <label for="tx">TRANSLATION X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="tx" min="0" max="670" value="100">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="ltx" value="100" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="ty">TRANSLATION Y</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="ty" min="0" max="750" value="100">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lty" value="100" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="tz">TRANSLATION Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="tz" min="0" max="780" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="ltz" value="0" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="rx">ROTATION X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="rx" min="-360" max="360" value="30">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lrx" value="30" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="ry">ROTATION Y</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="ry" min="-360" max="360" value="30">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lry" value="30" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="rz">ROTATION Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="rz" min="-360" max="360" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lrz" value="0" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="sx">SCALING X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="sx" min="-5" max="5" step="0.01" value="1">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lsx" value="1" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="sy">SCALING Y</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="sy" min="-5" max="5" step="0.01" value="1">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lsy" value="1" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="sz">SCALING Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="sz" min="-5" max="5" step="0.01" value="1">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lsz" value="1" disabled="true">
+            </div>
+        </div>
+
+         <!-- Inputs para a manipulação da camera -->
+         <div class="float-left w-50 pl-2 pr-2 border-right border-secondary h-90">
+            <h1 class="text-center bg-secondary text-light rounded">Camera</h1>
+
+            <div class="w-100">
+                <label for="ctx">CAMERA TRANSLATION X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="ctx" min="0" max="670" value="100">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lctx" value="100" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="cty">CAMERA TRANSLATION Y</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="cty" min="0" max="750" value="100">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lcty" value="100" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="ctz">CAMERA TRANSLATION Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="ctz" min="0" max="780" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lctz" value="0" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="crx">CAMERA ROTATION X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="crx" min="-360" max="360" value="30">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lcrx" value="30" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="cry">CAMERA ROTATION Y</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="cry" min="-360" max="360" value="30">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lcry" value="30" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="crz">CAMERA ROTATION Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="crz" min="-360" max="360" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lcrz" value="0" disabled="true">
+            </div>
+        </div>
+    </div>
+    <div class="float-right w-50 p-3">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <script src="https://webgl2fundamentals.org/webgl/resources/webgl-utils.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+        integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"
+        integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI"
+        crossorigin="anonymous"></script>
+    <script src="./index.js"></script>
+</body>
+
+</html>
