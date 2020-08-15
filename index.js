@@ -95,11 +95,7 @@ class Object {
       scale: null,
     };
   }
-  setMatrix() {  
-    var fieldOfViewRadians = degToRad(60)   
-    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
-    var zNear = 1;
-    var zFar = 2000;
+  setMatrix() {     
     var matrix = m4.projection(app.gl.canvas.clientWidth, app.gl.canvas.clientHeight, 400);
     matrix = m4.translate(matrix, this.transf.translation[0], this.transf.translation[1], this.transf.translation[2]);
     matrix = m4.xRotate(matrix, this.transf.rotation[0]);
@@ -283,12 +279,8 @@ input.object.scaleZ.oninput = function(e) {  // scale z
 }
 input.object.addObject.onclick = function(e) { // add object
   var index = createNewObject();
-  /* app.objects[index].transf.translation = [30, 50, 0];
+  app.objects[index].transf.translation = [30, 50, 0];
   app.objects[index].transf.rotation = [degToRad(30), degToRad(30), degToRad(0)];
-  app.objects[index].transf.scale = [1, 1, 1]; */
-
-  app.objects[index].transf.translation = [-150, 0, -360];
-  app.objects[index].transf.rotation = [degToRad(190), degToRad(40), degToRad(30)];
   app.objects[index].transf.scale = [1, 1, 1];
 
   var option = document.createElement("option");
@@ -325,7 +317,7 @@ var m4 = {
        0, 0, 1 / depth, 0,
       -1, 1, 0, 1,
     ];
-  },
+  },  
   multiply: function(a, b) { // matrix multiply
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];
