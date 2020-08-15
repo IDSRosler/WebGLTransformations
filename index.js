@@ -43,6 +43,8 @@ var input = {
     scaleX: document.getElementById("sx"), // scale x
     scaleY: document.getElementById("sy"), // scale y
     scaleZ: document.getElementById("sz"), // scale z
+    addObject: document.getElementById("add"),
+    delObject: document.getElementById("del"),
   },
   camera: {
     translationX: document.getElementById("ctx"), // translation x
@@ -93,7 +95,11 @@ class Object {
       scale: null,
     };
   }
-  setMatrix() {     
+  setMatrix() {  
+    var fieldOfViewRadians = degToRad(60)   
+    var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
+    var zNear = 1;
+    var zFar = 2000;
     var matrix = m4.projection(app.gl.canvas.clientWidth, app.gl.canvas.clientHeight, 400);
     matrix = m4.translate(matrix, this.transf.translation[0], this.transf.translation[1], this.transf.translation[2]);
     matrix = m4.xRotate(matrix, this.transf.rotation[0]);
@@ -107,21 +113,6 @@ class Object {
 
 function main() {
   InitProgram();
-  
-  var index = createNewObject();
-  app.objects[index].transf.translation = [100, 100, 0];
-  app.objects[index].transf.rotation = [degToRad(30), degToRad(30), degToRad(0)];
-  app.objects[index].transf.scale = [1, 1, 1];
-  
-  index = createNewObject();
-  app.objects[index].transf.translation = [400, 200, 0];
-  app.objects[index].transf.rotation = [degToRad(30), degToRad(-30), degToRad(100)];
-  app.objects[index].transf.scale = [1, 1, 1];
-  
-  index = createNewObject();
-  app.objects[index].transf.translation = [100, 300, 0];
-  app.objects[index].transf.rotation = [degToRad(30), degToRad(-30), degToRad(0)];
-  app.objects[index].transf.scale = [1, 1, 1];
 
   drawScene();
 }
@@ -180,12 +171,6 @@ function createNewObject() { // return the index object
   app.gl.vertexAttribPointer(app.positionAttributeLocation, size, type, normalize, stride, offset);
 
   SetObjectColor();
-
-  var select = document.getElementById("obj")
-  var option = document.createElement("option");
-  option.text = String(app.objects.length - 1);
-  option.value = String(app.objects.length - 1);
-  select.appendChild(option);
   
   return (app.objects.length - 1)
 }
@@ -206,63 +191,68 @@ function SetObjectColor(){
   app.gl.vertexAttribPointer(app.colorAttributeLocation, size, type, normalize, stride, offset);
 }
 
+function setAttributes(){
+    // Set transitions
+    input.object.translationX.value = String(app.objects[app.objectIndex].transf.translation[0]);
+    input.labelText.objTranslationX.value = String(app.objects[app.objectIndex].transf.translation[0]);
+    input.object.translationY.value = String(app.objects[app.objectIndex].transf.translation[1]);
+    input.labelText.objTranslationY.value = String(app.objects[app.objectIndex].transf.translation[1]);
+    input.object.translationZ.value = String(app.objects[app.objectIndex].transf.translation[2]);
+    input.labelText.objTranslationZ.value = String(app.objects[app.objectIndex].transf.translation[2]);
+    // Set rotations
+    input.object.rotationX.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[0]));
+    input.labelText.objRotationX.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[0]));
+    input.object.rotationY.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[1]));
+    input.labelText.objRotationY.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[1]));
+    input.object.rotationZ.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[2]));
+    input.labelText.objRotationZ.value = String(radToDeg(app.objects[app.objectIndex].transf.rotation[2]));
+    // Set scale
+    //input.object.scaleX.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[0]));
+    input.object.scaleX.value = String(app.objects[app.objectIndex].transf.scale[0]);
+    input.labelText.objScaleX.value = String( app.objects[app.objectIndex].transf.scale[0]);
+    input.object.scaleY.value = String(app.objects[app.objectIndex].transf.scale[1]);
+    input.labelText.objScaleY.value = String(app.objects[app.objectIndex].transf.scale[1]);
+    input.object.scaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
+    input.labelText.objScaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
+}
+
 // input control
 input.object.id.onchange = function(e) {
   app.objectIndex = Number(e.target.value);
-  // Set transitions
-  input.object.translationX.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[0]));
-  input.labelText.objTranslationX.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[0]));
-  input.object.translationY.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[1]));
-  input.labelText.objTranslationY.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[1]));
-  input.object.translationZ.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[2]));
-  input.labelText.objTranslationZ.setAttribute("value", String(app.objects[app.objectIndex].transf.translation[2]));
-  // Set rotations
-  input.object.rotationX.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[0])));
-  input.labelText.objRotationX.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[0])));
-  input.object.rotationY.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[1])));
-  input.labelText.objRotationY.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[1])));
-  input.object.rotationZ.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[2])));
-  input.labelText.objRotationZ.setAttribute("value", String(radToDeg(app.objects[app.objectIndex].transf.rotation[2])));
-  // Set scale
-  input.object.scaleX.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[0]));
-  input.labelText.objScaleX.setAttribute("value",String( app.objects[app.objectIndex].transf.scale[0]));
-  input.object.scaleY.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[1]));
-  input.labelText.objScaleY.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[1]));
-  input.object.scaleZ.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[2]));
-  input.labelText.objScaleZ.setAttribute("value", String(app.objects[app.objectIndex].transf.scale[2]));
+  setAttributes();
 }
 input.object.translationX.oninput = function(e) {  // translation x
-  input.labelText.objTranslationX.setAttribute("value", e.target.value);
+  input.labelText.objTranslationX.value = e.target.value;
   app.objects[app.objectIndex].transf.translation[0] = Number(e.target.value);
   drawScene();
 }
 input.object.translationY.oninput = function(e) {  // translation y
-  input.labelText.objTranslationY.setAttribute("value", e.target.value);
+  input.labelText.objTranslationY.value = e.target.value;
   app.objects[app.objectIndex].transf.translation[1] = Number(e.target.value);
   drawScene();
 }
 input.object.translationZ.oninput = function(e) {  // translation z
-  input.labelText.objTranslationZ.setAttribute("value", e.target.value);
+  input.labelText.objTranslationZ.value = e.target.value;
   app.objects[app.objectIndex].transf.translation[2] = Number(e.target.value);
   drawScene();
 }
 input.object.rotationX.oninput = function(e) { // rotation x
-  input.labelText.objRotationX.setAttribute("value", e.target.value)
+  input.labelText.objRotationX.value = e.target.value;
   app.objects[app.objectIndex].transf.rotation[0] = degToRad(Number(e.target.value));
   drawScene();
 }
 input.object.rotationY.oninput = function(e) { // rotation y
-  input.labelText.objRotationY.setAttribute("value", e.target.value)
+  input.labelText.objRotationY.value = e.target.value;
   app.objects[app.objectIndex].transf.rotation[1] = degToRad(Number(e.target.value));
   drawScene();
 }
 input.object.rotationZ.oninput = function(e) { // rotation z
-  input.labelText.objRotationZ.setAttribute("value", e.target.value)
+  input.labelText.objRotationZ.value = e.target.value;
   app.objects[app.objectIndex].transf.rotation[2] = degToRad(Number(e.target.value));
   drawScene();
 }
 input.object.scaleX.oninput = function(e) {  // scale x
-  input.labelText.objScaleX.setAttribute("value", e.target.value)
+  input.labelText.objScaleX.value = e.target.value;
   if(Number(e.target.value) == 0) {
     app.objects[app.objectIndex].transf.scale[0] = 0.01;
   }
@@ -272,7 +262,7 @@ input.object.scaleX.oninput = function(e) {  // scale x
   drawScene();
 }
 input.object.scaleY.oninput = function(e) {  // scale y
-  input.labelText.objScaleY.setAttribute("value", e.target.value)
+  input.labelText.objScaleY.value = e.target.value;
   if(Number(e.target.value) == 0) {
     app.objects[app.objectIndex].transf.scale[1] = 0.01;
   }
@@ -282,13 +272,47 @@ input.object.scaleY.oninput = function(e) {  // scale y
   drawScene();
 }
 input.object.scaleZ.oninput = function(e) {  // scale z
-  input.labelText.objScaleZ.setAttribute("value", e.target.value)
+  input.labelText.objScaleZ.value = e.target.value;
   if(Number(e.target.value) == 0) {
     app.objects[app.objectIndex].transf.scale[2] = 0.01;
   }
   else{
     app.objects[app.objectIndex].transf.scale[2] = Number(e.target.value); 
   }
+  drawScene();
+}
+input.object.addObject.onclick = function(e) { // add object
+  var index = createNewObject();
+  /* app.objects[index].transf.translation = [30, 50, 0];
+  app.objects[index].transf.rotation = [degToRad(30), degToRad(30), degToRad(0)];
+  app.objects[index].transf.scale = [1, 1, 1]; */
+
+  app.objects[index].transf.translation = [-150, 0, -360];
+  app.objects[index].transf.rotation = [degToRad(190), degToRad(40), degToRad(30)];
+  app.objects[index].transf.scale = [1, 1, 1];
+
+  var option = document.createElement("option");
+  option.text = String(index);
+  option.value = String(index);
+  input.object.id.appendChild(option);
+  input.object.id.value = String(index)
+
+  app.objectIndex = index;
+
+  setAttributes();
+
+  drawScene();
+}
+input.object.delObject.onclick = function(e) { // delete object
+  var index = Number(input.object.id.value);
+  var updateIndex = input.object.id.length - 1
+
+  app.objects.splice(index, 1);
+  input.object.id.remove(updateIndex);
+
+  app.objectIndex = updateIndex - 1;
+  if(app.objectIndex > -1){setAttributes();}  
+
   drawScene();
 }
 
@@ -301,7 +325,7 @@ var m4 = {
        0, 0, 1 / depth, 0,
       -1, 1, 0, 1,
     ];
-  },  
+  },
   multiply: function(a, b) { // matrix multiply
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];
@@ -422,7 +446,7 @@ function degToRad(d) {
   return d * Math.PI / 180;
 }
 function radToDeg(r) {
-  return r * 180 / Math.PI;
+  return Math.ceil(r * 180 / Math.PI);
 }
 
 // set the object vertexs 
