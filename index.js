@@ -47,7 +47,7 @@ var input = {
     delObject: document.getElementById("del"),
   },
   camera: {
-    translationX: document.getElementById("ctx"), // translation x
+    fildOfView: document.getElementById("fild"), // translation x
     translationY: document.getElementById("cty"), // translation y
     translationZ: document.getElementById("ctz"), // translation z
     rotationX: document.getElementById("crx"),
@@ -64,7 +64,7 @@ var input = {
     objScaleX: document.getElementById("lsx"),
     objScaleY: document.getElementById("lsy"),
     objScaleZ: document.getElementById("lsz"),
-    camTranslationX: document.getElementById("lctx"),
+    camFildOfView: document.getElementById("lfild"),
     camTranslationY: document.getElementById("lcty"),
     camTranslationZ: document.getElementById("lctz"),
     camRotationX: document.getElementById("lcrx"),
@@ -72,6 +72,7 @@ var input = {
     camRotationZ: document.getElementById("lcrz"),
   },
 };
+
 // Global attributes
 var app = {
   canvas: null,
@@ -83,6 +84,14 @@ var app = {
   objectIndex: 0,
   objects: [],
 };
+
+var camera = {
+  fildOfView: degToRad(60),
+  aspect: 0,
+  near: 1,
+  far: 2000,
+};
+
 // object
 class Object {
   constructor() {
@@ -96,12 +105,13 @@ class Object {
     };
   }
   setMatrix() {     
-    var matrix = m4.projection(app.gl.canvas.clientWidth, app.gl.canvas.clientHeight, 400);
-    matrix = m4.translate(matrix, this.transf.translation[0], this.transf.translation[1], this.transf.translation[2]);
-    matrix = m4.xRotate(matrix, this.transf.rotation[0]);
-    matrix = m4.yRotate(matrix, this.transf.rotation[1]);
-    matrix = m4.zRotate(matrix, this.transf.rotation[2]);
-    matrix = m4.scale(matrix, this.transf.scale[0], this.transf.scale[1], this.transf.scale[2]);
+    /* var matrix = m4.projection(app.gl.canvas.clientWidth, app.gl.canvas.clientHeight, 400); */
+    var matrix = m4.perspective(camera.fildOfView, camera.aspect, camera.near, camera.far);
+        matrix = m4.translate(matrix, this.transf.translation[0], this.transf.translation[1], this.transf.translation[2]);
+        matrix = m4.xRotate(matrix, this.transf.rotation[0]);
+        matrix = m4.yRotate(matrix, this.transf.rotation[1]);
+        matrix = m4.zRotate(matrix, this.transf.rotation[2]);
+        matrix = m4.scale(matrix, this.transf.scale[0], this.transf.scale[1], this.transf.scale[2]);
 
     this.matrix = matrix 
   }
@@ -109,7 +119,6 @@ class Object {
 
 function main() {
   InitProgram();
-
   drawScene();
 }
 // draw the scene
@@ -121,8 +130,9 @@ function drawScene() {
   app.gl.enable(app.gl.DEPTH_TEST);                                   // turn on depth testing
   app.gl.useProgram(app.program);                                     // Tell it to use our program (pair of shaders)
 
-  app.objects.map(object => {
-      
+  camera.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
+
+  app.objects.map(object => {      
     app.gl.bindVertexArray(object.shader);     // Bind the attribute/buffer set we want.
     
     object.setMatrix();
@@ -279,9 +289,13 @@ input.object.scaleZ.oninput = function(e) {  // scale z
 }
 input.object.addObject.onclick = function(e) { // add object
   var index = createNewObject();
-  app.objects[index].transf.translation = [30, 50, 0];
+  app.objects[index].transf.translation = [0, 0, -360];
   app.objects[index].transf.rotation = [degToRad(30), degToRad(30), degToRad(0)];
   app.objects[index].transf.scale = [1, 1, 1];
+
+  /* app.objects[index].transf.translation = [30, 50, 0];
+  app.objects[index].transf.rotation = [degToRad(30), degToRad(30), degToRad(0)];
+  app.objects[index].transf.scale = [1, 1, 1]; */
 
   var option = document.createElement("option");
   option.text = String(index);
@@ -308,6 +322,13 @@ input.object.delObject.onclick = function(e) { // delete object
   drawScene();
 }
 
+// camera control
+input.camera.fildOfView.oninput = function(e) {
+  input.labelText.camFildOfView.value = e.target.value;
+  camera.fildOfView = degToRad(Number(e.target.value));
+  drawScene();
+}
+
 // transformations and matrix operations for a matrix 4D
 var m4 = {
   projection: function(width, height, depth) { // project a matrix
@@ -318,6 +339,17 @@ var m4 = {
       -1, 1, 0, 1,
     ];
   },  
+  perspective: function(fieldOfViewInRadians, aspect, near, far) {
+    var f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
+    var rangeInv = 1.0 / (near - far);
+
+    return [
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (near + far) * rangeInv, -1,
+      0, 0, near * far * rangeInv * 2, 0,
+    ];
+  },
   multiply: function(a, b) { // matrix multiply
     var a00 = a[0 * 4 + 0];
     var a01 = a[0 * 4 + 1];
