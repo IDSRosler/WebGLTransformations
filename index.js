@@ -85,29 +85,41 @@ var app = {
   objects: [],
 };
 
-var camera = {
+/* var camera = {
   fildOfView: degToRad(60),
   aspect: 0,
   near: 1,
   far: 2000,
-};
+}; */
+
+// camera
+class Camera {
+  constructor() {
+    this.fildOfView = degToRad(60);
+    this.aspect = 0;
+    this.near = 1,
+    this.far = 2000;
+  }
+}
 
 // object
 class Object {
   constructor() {
     this.positionBuffer = null;
-    this.shape = null;
-    this.matrix = null;
+    this.matrix = [
+      1,0,0,0,
+      0,1,0,0,
+      0,0,1,0,
+      0,0,0,1,
+    ];
     this.transf = {
       translation: null,
       rotation: null,
       scale: null,
     };
   }
-  setMatrix() {     
-    /* var matrix = m4.projection(app.gl.canvas.clientWidth, app.gl.canvas.clientHeight, 400); */
-    var matrix = m4.perspective(camera.fildOfView, camera.aspect, camera.near, camera.far);
-        matrix = m4.translate(matrix, this.transf.translation[0], this.transf.translation[1], this.transf.translation[2]);
+  setMatrix(viewProjectionMatrix) {
+    var matrix = m4.translate(viewProjectionMatrix, this.transf.translation[0],this.transf.translation[1],this.transf.translation[2]);
         matrix = m4.xRotate(matrix, this.transf.rotation[0]);
         matrix = m4.yRotate(matrix, this.transf.rotation[1]);
         matrix = m4.zRotate(matrix, this.transf.rotation[2]);
@@ -116,6 +128,8 @@ class Object {
     this.matrix = matrix 
   }
 }
+
+var camera1 = new Camera();
 
 function main() {
   InitProgram();
@@ -131,12 +145,26 @@ function drawScene() {
   app.gl.enable(app.gl.DEPTH_TEST);                                   // turn on depth testing
   app.gl.useProgram(app.program);                                     // Tell it to use our program (pair of shaders)
 
-  camera.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
+  camera1.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
+
+  var projectionMatrix = m4.perspective(camera1.fildOfView, camera1.aspect, camera1.near, camera1.far);
+
+  var camMatrix = [
+    1,0,0,0,
+    0,1,0,0,
+    0,0,1,0,
+    0,0,0,1,
+  ];
+  camMatrix = m4.translate(camMatrix, 0, 0, 500);
+
+  var viewMatrix = m4.inverse(camMatrix);
+
+  var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
   app.objects.map(object => {      
     app.gl.bindVertexArray(object.shader);     // Bind the attribute/buffer set we want.
     
-    object.setMatrix();
+    object.setMatrix(viewProjectionMatrix);
 
     app.gl.uniformMatrix4fv(app.matrixLocation, false, object.matrix);
 
