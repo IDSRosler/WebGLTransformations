@@ -48,7 +48,9 @@ var input = {
   },
   camera: {
     fildOfView: document.getElementById("fild"),  
-    near: document.getElementById("near"), 
+    translationX: document.getElementById("ctx"), 
+    translationY: document.getElementById("cty"), 
+    translationZ: document.getElementById("ctz"), 
     far: document.getElementById("far"), 
     rotationX: document.getElementById("crx"),
     rotationY: document.getElementById("cry"),
@@ -65,8 +67,9 @@ var input = {
     objScaleY: document.getElementById("lsy"),
     objScaleZ: document.getElementById("lsz"),
     camFildOfView: document.getElementById("lfild"),
-    camNear: document.getElementById("lnear"),
-    camFar: document.getElementById("lfar"),
+    camTranslationX: document.getElementById("lctx"),
+    camTranslationY: document.getElementById("lcty"),
+    camTranslationZ: document.getElementById("lctz"),
     camRotationX: document.getElementById("lcrx"),
     camRotationY: document.getElementById("lcry"),
     camRotationZ: document.getElementById("lcrz"),
@@ -85,20 +88,28 @@ var app = {
   objects: [],
 };
 
-/* var camera = {
-  fildOfView: degToRad(60),
-  aspect: 0,
-  near: 1,
-  far: 2000,
-}; */
-
 // camera
 class Camera {
   constructor() {
-    this.fildOfView = degToRad(60);
-    this.aspect = 0;
-    this.near = 1,
-    this.far = 2000;
+    this.matrix = [
+      1,0,0,0,
+      0,1,0,0,
+      0,0,1,0,
+      0,0,0,1,
+    ];
+    this.att = {
+      fildOfView: degToRad(60),
+      aspect: 0,
+      near: 1,
+      far: 2000,
+      translation: [0,0, 100],
+      rotation: [0,0,0],
+    };
+  }
+  setMatrix() {
+    var matrix = m4.createMatrix();
+    matrix = m4.translate(matrix, this.att.translation[0],this.att.translation[1],this.att.translation[2]);
+    this.matrix = matrix 
   }
 }
 
@@ -113,9 +124,9 @@ class Object {
       0,0,0,1,
     ];
     this.transf = {
-      translation: null,
-      rotation: null,
-      scale: null,
+      translation: [0,0,0],
+      rotation: [0,0,0],
+      scale: [1,1,1],
     };
   }
   setMatrix(viewProjectionMatrix) {
@@ -129,7 +140,8 @@ class Object {
   }
 }
 
-var camera1 = new Camera();
+var camera = [];
+camera.push(new Camera);
 
 function main() {
   InitProgram();
@@ -145,19 +157,20 @@ function drawScene() {
   app.gl.enable(app.gl.DEPTH_TEST);                                   // turn on depth testing
   app.gl.useProgram(app.program);                                     // Tell it to use our program (pair of shaders)
 
-  camera1.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
+  camera[0].att.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
 
-  var projectionMatrix = m4.perspective(camera1.fildOfView, camera1.aspect, camera1.near, camera1.far);
+  var projectionMatrix = m4.perspective(camera[0].att.fildOfView, camera[0].att.aspect, camera[0].att.near, camera[0].att.far);
 
-  var camMatrix = [
+  /* var camMatrix = [
     1,0,0,0,
     0,1,0,0,
     0,0,1,0,
     0,0,0,1,
   ];
-  camMatrix = m4.translate(camMatrix, 0, 0, 500);
+  camMatrix = m4.translate(camMatrix, 0, 0, 500); */
+  camera[0].setMatrix();
 
-  var viewMatrix = m4.inverse(camMatrix);
+  var viewMatrix = m4.inverse(camera[0].matrix);
 
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
@@ -351,24 +364,35 @@ input.object.delObject.onclick = function(e) { // Delete object
 // camera control
 input.camera.fildOfView.oninput = function(e) { // Fild of view
   input.labelText.camFildOfView.value = e.target.value;
-  camera.fildOfView = degToRad(Number(e.target.value));
+  camera[0].att.fildOfView = degToRad(Number(e.target.value));
   drawScene();
 }
-
-input.camera.near.oninput = function(e) {  // Near
-  input.labelText.camNear.value = e.target.value;
-  camera.near = Number(e.target.value);
+input.camera.translationX.oninput = function(e) { // Camera translation x
+  input.labelText.camTranslationX.value = e.target.value;
+  camera[0].att.translation[0] = Number(e.target.value);
   drawScene();
 }
-
-input.camera.near.oninput = function(e) { // Far
-  input.labelText.camFar.value = e.target.value;
-  camera.far = Number(e.target.value);
+input.camera.translationY.oninput = function(e) { // Camera translation y
+  input.labelText.camTranslationY.value = e.target.value;
+  camera[0].att.translation[1] = Number(e.target.value);
+  drawScene();
+}
+input.camera.translationZ.oninput = function(e) { // Camera translation z
+  input.labelText.camTranslationZ.value = e.target.value;
+  camera[0].att.translation[2] = Number(e.target.value);
   drawScene();
 }
 
 // transformations and matrix operations for a matrix 4D
 var m4 = {
+  createMatrix: function(){
+    return [
+      1,0,0,0,
+      0,1,0,0,
+      0,0,1,0,
+      0,0,0,1,
+    ]
+  },
   projection: function(width, height, depth) { // project a matrix
     return [
        2 / width, 0, 0, 0,

@@ -140,23 +140,33 @@
             </div>
 
             <div class="w-100">
-                <label for="near">NEAR</label>
+                <label for="near">CAMERA TRANSLATION X</label>
             </div>
             <div class="float-left w-75">
-                <input type="range" class="form-control-range" id="near" min="1" max="2000" value="1">
+                <input type="range" class="form-control-range" id="ctx" min="-500" max="500" value="0">
             </div>
             <div class="float-left w-25">
-                <input type="text" id="lnear" value="1" disabled="true">
+                <input type="text" id="lctx" value="0" disabled="true">
             </div>
 
             <div class="w-100">
-                <label for="far">FAR</label>
+                <label for="near">CAMERA TRANSLATION Y</label>
             </div>
             <div class="float-left w-75">
-                <input type="range" class="form-control-range" id="far" min="1" max="2000" value="1000">
+                <input type="range" class="form-control-range" id="cty" min="-500" max="500" value="0">
             </div>
             <div class="float-left w-25">
-                <input type="text" id="lfar" value="1000" disabled="true">
+                <input type="text" id="lcty" value="0" disabled="true">
+            </div>
+
+            <div class="w-100">
+                <label for="near">CAMERA TRANSLATION Z</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="ctz" min="-500" max="500" value="100">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lctz" value="0" disabled="true">
             </div>
 
             <div class="w-100">
