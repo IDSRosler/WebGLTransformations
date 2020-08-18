@@ -115,11 +115,33 @@
                 <input type="text" id="lsz" value="1" disabled="true">
             </div>
 
+            <div class="w-100 text-center pt-5">
+                <label>TRANSLATION CURVE</label>
+            </div>
+            <div class="w-50 float-left text-center">
+                <label>END POSITION</label>
+            </div>
+            <div class="w-50 float-left text-center">
+                <label>CONTROL OF CURVE</label>
+            </div>
+            <div class="float-left w-25 pl-1 pr-1">
+                <input type="number" id="cx" placeholder="X">
+            </div>
+            <div class="float-left w-25 pl-1 pr-1">
+                <input type="number" id="cy" placeholder="Y">
+            </div>
+            <div class="float-left w-25 pl-1 pr-1">
+                <input type="range" class="form-control-range" id="t" min="0" max="1" step="0.01" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lt" value="0" disabled="true">
+            </div>
+
             <!--Add object-->
-            <div class="float-left w-50 p-2"> 
+            <div class="float-left w-50 p-2 pt-3"> 
                 <button type="button" id="add" class="btn btn-outline-secondary w-100">New Object</button>
             </div>
-            <div class="float-left w-50 p-2">
+            <div class="float-left w-50 p-2 pt-3">
                 <button type="button" id="del" class="btn btn-outline-secondary w-100">Delete Object</button>
             </div>     
 
@@ -130,13 +152,20 @@
             <h1 class="text-center bg-secondary text-light rounded">Camera</h1>
 
             <div class="w-100">
+                <label for="cam">SELECT CAMERA</label>
+            </div>
+            <div class="float-left w-100 pb-3">
+                <select class="custom-select" id="cam"></select>
+            </div>
+
+            <div class="w-100">
                 <label for="ctx">FILD OF VIEW</label>
             </div>
             <div class="float-left w-75">
                 <input type="range" class="form-control-range" id="fild" min="1" max="180" value="60">
             </div>
             <div class="float-left w-25">
-                <input type="text" id="lfild" value="100" disabled="true">
+                <input type="text" id="lfild" value="60" disabled="true">
             </div>
 
             <div class="w-100">
@@ -170,13 +199,23 @@
             </div>
 
             <div class="w-100">
+                <label for="cry">CAMERA ROTATION X</label>
+            </div>
+            <div class="float-left w-75">
+                <input type="range" class="form-control-range" id="crx" min="-360" max="360" value="0">
+            </div>
+            <div class="float-left w-25">
+                <input type="text" id="lcrx" value="0" disabled="true">
+            </div>
+
+            <div class="w-100">
                 <label for="cry">CAMERA ROTATION Y</label>
             </div>
             <div class="float-left w-75">
-                <input type="range" class="form-control-range" id="cry" min="-360" max="360" value="30">
+                <input type="range" class="form-control-range" id="cry" min="-360" max="360" value="0">
             </div>
             <div class="float-left w-25">
-                <input type="text" id="lcry" value="30" disabled="true">
+                <input type="text" id="lcry" value="0" disabled="true">
             </div>
 
             <div class="w-100">

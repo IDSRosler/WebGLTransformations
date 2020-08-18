@@ -43,15 +43,18 @@ var input = {
     scaleX: document.getElementById("sx"), // scale x
     scaleY: document.getElementById("sy"), // scale y
     scaleZ: document.getElementById("sz"), // scale z
-    addObject: document.getElementById("add"),
-    delObject: document.getElementById("del"),
+    addObject: document.getElementById("add"), // add
+    delObject: document.getElementById("del"), // delete
+    t: document.getElementById("t"), // control of curve
+    endX: document.getElementById("cx"),
+    endY: document.getElementById("cy"),
   },
   camera: {
+    id: document.getElementById("cam"), 
     fildOfView: document.getElementById("fild"),  
     translationX: document.getElementById("ctx"), 
     translationY: document.getElementById("cty"), 
-    translationZ: document.getElementById("ctz"), 
-    far: document.getElementById("far"), 
+    translationZ: document.getElementById("ctz"),
     rotationX: document.getElementById("crx"),
     rotationY: document.getElementById("cry"),
     rotationZ: document.getElementById("crz"),
@@ -66,6 +69,7 @@ var input = {
     objScaleX: document.getElementById("lsx"),
     objScaleY: document.getElementById("lsy"),
     objScaleZ: document.getElementById("lsz"),
+    objCurve: document.getElementById("lt"),
     camFildOfView: document.getElementById("lfild"),
     camTranslationX: document.getElementById("lctx"),
     camTranslationY: document.getElementById("lcty"),
@@ -86,17 +90,16 @@ var app = {
   matrixLocation: null, 
   objectIndex: 0,
   objects: [],
+  cameraIndex: 0,
+  camera: [],
 };
 
 // camera
 class Camera {
   constructor() {
-    this.matrix = [
-      1,0,0,0,
-      0,1,0,0,
-      0,0,1,0,
-      0,0,0,1,
-    ];
+    this.matrix = m4.createMatrix();
+    this.cameraPosition = [];
+    this.up = [0,1,0];
     this.att = {
       fildOfView: degToRad(60),
       aspect: 0,
@@ -109,7 +112,13 @@ class Camera {
   setMatrix() {
     var matrix = m4.createMatrix();
     matrix = m4.translate(matrix, this.att.translation[0],this.att.translation[1],this.att.translation[2]);
+    matrix = m4.xRotate(matrix, this.att.rotation[0]);
+    matrix = m4.yRotate(matrix, this.att.rotation[1]);
+    matrix = m4.zRotate(matrix, this.att.rotation[2]);
     this.matrix = matrix 
+  }
+  setCameraPosition(){
+    this.cameraPosition = [this.matrix[12], this.matrix[13], this.matrix[14]]
   }
 }
 
@@ -117,12 +126,7 @@ class Camera {
 class Object {
   constructor() {
     this.positionBuffer = null;
-    this.matrix = [
-      1,0,0,0,
-      0,1,0,0,
-      0,0,1,0,
-      0,0,0,1,
-    ];
+    this.matrix = m4.createMatrix();
     this.transf = {
       translation: [0,0,0],
       rotation: [0,0,0],
@@ -140,11 +144,9 @@ class Object {
   }
 }
 
-var camera = [];
-camera.push(new Camera);
-
 function main() {
   InitProgram();
+  setCameras();
   drawScene();
 }
 
@@ -157,20 +159,33 @@ function drawScene() {
   app.gl.enable(app.gl.DEPTH_TEST);                                   // turn on depth testing
   app.gl.useProgram(app.program);                                     // Tell it to use our program (pair of shaders)
 
-  camera[0].att.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
+  app.camera[app.cameraIndex].att.aspect = app.gl.canvas.clientWidth / app.gl.canvas.clientHeight;
 
-  var projectionMatrix = m4.perspective(camera[0].att.fildOfView, camera[0].att.aspect, camera[0].att.near, camera[0].att.far);
+  var projectionMatrix = m4.perspective(
+    app.camera[app.cameraIndex].att.fildOfView, 
+    app.camera[app.cameraIndex].att.aspect, 
+    app.camera[app.cameraIndex].att.near, 
+    app.camera[app.cameraIndex].att.far
+  );
 
-  /* var camMatrix = [
-    1,0,0,0,
-    0,1,0,0,
-    0,0,1,0,
-    0,0,0,1,
+  app.camera[app.cameraIndex].setMatrix();
+  
+  /* var target = [100,100,-200];
+  
+  var cameraPosition = [
+    app.camera[app.cameraIndex].matrix[12],
+    app.camera[app.cameraIndex].matrix[13],
+    app.camera[app.cameraIndex].matrix[14],
   ];
-  camMatrix = m4.translate(camMatrix, 0, 0, 500); */
-  camera[0].setMatrix();
 
-  var viewMatrix = m4.inverse(camera[0].matrix);
+  var up = [0, 1, 0];
+
+  // Compute the camera's matrix using look at.
+  var cameraMatrix = m4.lookAt(cameraPosition, target, up);
+  
+  var viewMatrix = m4.inverse(cameraMatrix); */
+  
+  var viewMatrix = m4.inverse(app.camera[app.cameraIndex].matrix);
 
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
@@ -239,6 +254,45 @@ function SetObjectColor(){
   app.gl.vertexAttribPointer(app.colorAttributeLocation, size, type, normalize, stride, offset);
 }
 
+function setCameras(){
+  app.camera.push(new Camera);
+  app.camera.push(new Camera);
+  app.camera.push(new Camera);
+  app.camera.push(new Camera);
+  app.camera.push(new Camera);
+
+  app.camera[0].att.fildOfView = degToRad(60);
+  app.camera[0].att.translation = [0,0,100];
+  app.camera[0].att.rotation = [degToRad(0),degToRad(0),degToRad(0)];
+
+  app.camera[1].att.fildOfView = degToRad(110);
+  app.camera[1].att.translation = [340,5,-270];
+  app.camera[1].att.rotation = [degToRad(0),degToRad(49),degToRad(0)];
+
+  app.camera[2].att.fildOfView = degToRad(110);
+  app.camera[2].att.translation = [-340,5,-270];
+  app.camera[2].att.rotation = [degToRad(0),degToRad(-49),degToRad(0)];
+
+  app.camera[3].att.fildOfView = degToRad(60);
+  app.camera[3].att.translation = [0,500,-100];
+  app.camera[3].att.rotation = [degToRad(-50),degToRad(0),degToRad(0)];
+
+  app.camera[4].att.fildOfView = degToRad(60);
+  app.camera[4].att.translation = [0,-500,-100];
+  app.camera[4].att.rotation = [degToRad(50),degToRad(0),degToRad(0)];
+
+  for (let index = 0; index < app.camera.length; index++) {
+    var option = document.createElement("option");
+    option.text = String(index);
+    option.value = String(index);
+    input.camera.id.appendChild(option);
+    input.camera.id.value = String(index)
+  }
+  input.camera.id.value = "0";
+
+  app.cameraIndex = 0;
+}
+
 function setAttributes(){
     // Set transitions
     input.object.translationX.value = String(app.objects[app.objectIndex].transf.translation[0]);
@@ -262,6 +316,26 @@ function setAttributes(){
     input.labelText.objScaleY.value = String(app.objects[app.objectIndex].transf.scale[1]);
     input.object.scaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
     input.labelText.objScaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
+}
+
+function setCameraAttributes(){
+  // Set fild of view
+  input.camera.fildOfView.value = String(radToDeg(app.camera[app.cameraIndex].att.fildOfView));
+  input.labelText.camFildOfView.value = String(radToDeg(app.camera[app.cameraIndex].att.fildOfView));
+  // Set transitions
+  input.camera.translationX.value = String(app.camera[app.cameraIndex].att.translation[0]);
+  input.labelText.camTranslationX.value = String(app.camera[app.cameraIndex].att.translation[0]);
+  input.camera.translationY.value = String(app.camera[app.cameraIndex].att.translation[1]);
+  input.labelText.camTranslationY.value = String(app.camera[app.cameraIndex].att.translation[1]);
+  input.camera.translationZ.value = String(app.camera[app.cameraIndex].att.translation[2]);
+  input.labelText.camTranslationZ.value = String(app.camera[app.cameraIndex].att.translation[2]);
+  // Set rotations
+  input.camera.rotationX.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[0]));
+  input.labelText.camRotationX.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[0]));
+  input.camera.rotationY.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[1]));
+  input.labelText.camRotationY.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[1]));
+  input.camera.rotationZ.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[2]));
+  input.labelText.camRotationZ.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[2]));
 }
 
 // input control
@@ -360,26 +434,62 @@ input.object.delObject.onclick = function(e) { // Delete object
 
   drawScene();
 }
+input.object.t.oninput = function(e) { // Curve control
+  input.labelText.objCurve.value = e.target.value;
+  var t = Number(e.target.value);
+  var x = Number(input.object.endX.value);
+  var y = Number(input.object.endY.value);
+  
+  if (t == 1){
+    input.object.t.value = 0;
+  }
+
+  var point = getPointInBezierCurve(t, [x,y]);
+  app.objects[app.objectIndex].transf.translation = [point[0], point[1], point[2]];
+
+  setAttributes();
+  drawScene();
+}
 
 // camera control
+input.camera.id.onchange = function(e) {
+  app.cameraIndex = Number(e.target.value);
+  setCameraAttributes();
+  drawScene();
+}
 input.camera.fildOfView.oninput = function(e) { // Fild of view
   input.labelText.camFildOfView.value = e.target.value;
-  camera[0].att.fildOfView = degToRad(Number(e.target.value));
+  app.camera[app.cameraIndex].att.fildOfView = degToRad(Number(e.target.value));
   drawScene();
 }
 input.camera.translationX.oninput = function(e) { // Camera translation x
   input.labelText.camTranslationX.value = e.target.value;
-  camera[0].att.translation[0] = Number(e.target.value);
+  app.camera[app.cameraIndex].att.translation[0] = Number(e.target.value);
   drawScene();
 }
 input.camera.translationY.oninput = function(e) { // Camera translation y
   input.labelText.camTranslationY.value = e.target.value;
-  camera[0].att.translation[1] = Number(e.target.value);
+  app.camera[app.cameraIndex].att.translation[1] = Number(e.target.value);
   drawScene();
 }
 input.camera.translationZ.oninput = function(e) { // Camera translation z
   input.labelText.camTranslationZ.value = e.target.value;
-  camera[0].att.translation[2] = Number(e.target.value);
+  app.camera[app.cameraIndex].att.translation[2] = Number(e.target.value);
+  drawScene();
+}
+input.camera.rotationX.oninput = function(e) { // Camera rotation x
+  input.labelText.camRotationX.value = e.target.value;
+  app.camera[app.cameraIndex].att.rotation[0] = degToRad(Number(e.target.value));
+  drawScene();
+}
+input.camera.rotationY.oninput = function(e) { // Camera rotation y
+  input.labelText.camRotationY.value = e.target.value;
+  app.camera[app.cameraIndex].att.rotation[1] = degToRad(Number(e.target.value));
+  drawScene();
+}
+input.camera.rotationZ.oninput = function(e) { // Camera rotation z
+  input.labelText.camRotationZ.value = e.target.value;
+  app.camera[app.cameraIndex].att.rotation[2] = degToRad(Number(e.target.value));
   drawScene();
 }
 
@@ -609,7 +719,43 @@ var m4 = {
            (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)),
     ];
   },
+  lookAt: function(cameraPosition, target, up) {
+    var zAxis = vector.normalize(vector.subtractVectors(cameraPosition, target));
+    var xAxis = vector.normalize(vector.crossProduct(up, zAxis));
+    var yAxis = vector.normalize(vector.crossProduct(zAxis, xAxis));
+ 
+    return [
+      xAxis[0], xAxis[1], xAxis[2], 0,
+      yAxis[0], yAxis[1], yAxis[2], 0,
+      zAxis[0], zAxis[1], zAxis[2], 0,
+      cameraPosition[0],
+      cameraPosition[1],
+      cameraPosition[2],
+      1,
+    ];
+  },
 };
+
+var vector = {
+  crossProduct: function(a,b){
+    return [
+      a[1] * b[2] - a[2] * b[1],
+      a[2] * b[0] - a[0] * b[2],
+      a[0] * b[1] - a[1] * b[0]
+    ];
+  },
+  subtractVectors: function(a, b) {
+    return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  },
+  normalize: function(v){
+    var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    if (length > 0.00001) {
+      return [v[0] / length, v[1] / length, v[2] / length];
+    } else {
+      return [0, 0, 0];
+    }
+  },
+}
 
 // transform from degree to radian
 function degToRad(d) {
@@ -618,7 +764,14 @@ function degToRad(d) {
 function radToDeg(r) {
   return Math.ceil(r * 180 / Math.PI);
 }
-
+function getPointInBezierCurve(t, endP) {
+  var p0 = [app.objects[app.objectIndex].transf.translation[0],app.objects[app.objectIndex].transf.translation[1]];
+  var p1 = [0,500];
+  var p2 = [endP[0], endP[1]];
+  p2[0] = (1-t) ** 2 * p0[0] + (1-t) * 2 * t * p1[0] + t * t * p2[0];
+  p2[1] = (1-t) ** 2 * p0[1] + (1-t) * 2 * t * p1[1] + t * t * p2[1];
+  return [p2[0], p2[1], app.objects[app.objectIndex].transf.translation[2]];
+}
 // set the object vertexs 
 function setObject() {
   app.gl.bufferData(
@@ -669,7 +822,6 @@ function setObject() {
     ]),
     app.gl.STATIC_DRAW);
 }
-
 // Set the object colors
 function setColors(){
   app.gl.bufferData(
