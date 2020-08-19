@@ -58,6 +58,9 @@ var input = {
     rotationX: document.getElementById("crx"),
     rotationY: document.getElementById("cry"),
     rotationZ: document.getElementById("crz"),
+    t: document.getElementById("tc"), // control of curve
+    endX: document.getElementById("ccx"),
+    endY: document.getElementById("ccy"),
   },
   labelText: {
     objTranslationX: document.getElementById("ltx"),
@@ -77,6 +80,7 @@ var input = {
     camRotationX: document.getElementById("lcrx"),
     camRotationY: document.getElementById("lcry"),
     camRotationZ: document.getElementById("lcrz"),
+    camCurve: document.getElementById("ltc"),
   },
 };
 
@@ -92,14 +96,20 @@ var app = {
   objects: [],
   cameraIndex: 0,
   camera: [],
+  meanPoint: [0,0],
+  ft: true,
 };
+
+var curve = {
+  startP: [0,0],
+  meanPoint: [0,0],
+  ft: true,
+}
 
 // camera
 class Camera {
   constructor() {
     this.matrix = m4.createMatrix();
-    this.cameraPosition = [];
-    this.up = [0,1,0];
     this.att = {
       fildOfView: degToRad(60),
       aspect: 0,
@@ -107,6 +117,9 @@ class Camera {
       far: 2000,
       translation: [0,0, 100],
       rotation: [0,0,0],
+      cameraPosition: [],
+      up: [0,1,0],
+      target: [0,0,0],
     };
   }
   setMatrix() {
@@ -118,7 +131,7 @@ class Camera {
     this.matrix = matrix 
   }
   setCameraPosition(){
-    this.cameraPosition = [this.matrix[12], this.matrix[13], this.matrix[14]]
+    this.att.cameraPosition = [this.matrix[12], this.matrix[13], this.matrix[14]]
   }
 }
 
@@ -168,20 +181,13 @@ function drawScene() {
     app.camera[app.cameraIndex].att.far
   );
 
-  app.camera[app.cameraIndex].setMatrix();
+  app.camera[app.cameraIndex].setMatrix();  
+  app.camera[app.cameraIndex].setCameraPosition();
   
-  /* var target = [100,100,-200];
-  
-  var cameraPosition = [
-    app.camera[app.cameraIndex].matrix[12],
-    app.camera[app.cameraIndex].matrix[13],
-    app.camera[app.cameraIndex].matrix[14],
-  ];
-
-  var up = [0, 1, 0];
+  /* //var target = [app.objects[app.objectIndex].transf.translation[0], app.objects[app.objectIndex].transf.translation[1], app.objects[app.objectIndex].transf.translation[2] * 1.2];
 
   // Compute the camera's matrix using look at.
-  var cameraMatrix = m4.lookAt(cameraPosition, target, up);
+  var cameraMatrix = m4.lookAt(app.camera[app.cameraIndex].att.cameraPosition, app.camera[app.cameraIndex].att.target, app.camera[app.cameraIndex].att.up);
   
   var viewMatrix = m4.inverse(cameraMatrix); */
   
@@ -442,10 +448,17 @@ input.object.t.oninput = function(e) { // Curve control
   
   if (t == 1){
     input.object.t.value = 0;
+    input.labelText.objCurve.value = 0;
+    curve.ft = true;
+  }
+  if (curve.ft){
+    curve.meanPoint = [(app.objects[app.objectIndex].transf.translation[0]+x)/2, ((app.objects[app.objectIndex].transf.translation[1]+y)/2)+500];
+    curve.startP = [app.objects[app.objectIndex].transf.translation[0],app.objects[app.objectIndex].transf.translation[1]];
+    curve.ft = false;
   }
 
-  var point = getPointInBezierCurve(t, [x,y]);
-  app.objects[app.objectIndex].transf.translation = [point[0], point[1], point[2]];
+  var point = getPointInBezierCurve(t, curve.meanPoint, curve.startP, [x,y]);
+  app.objects[app.objectIndex].transf.translation = [point[0], point[1], app.objects[app.objectIndex].transf.translation[2]];
 
   setAttributes();
   drawScene();
@@ -490,6 +503,29 @@ input.camera.rotationY.oninput = function(e) { // Camera rotation y
 input.camera.rotationZ.oninput = function(e) { // Camera rotation z
   input.labelText.camRotationZ.value = e.target.value;
   app.camera[app.cameraIndex].att.rotation[2] = degToRad(Number(e.target.value));
+  drawScene();
+}
+input.camera.t.oninput = function(e) { // Curve control
+  input.labelText.camCurve.value = e.target.value;
+  var t = Number(e.target.value);
+  var x = Number(input.camera.endX.value);
+  var y = Number(input.camera.endY.value);
+  
+  if (t == 1){
+    input.camera.t.value = 0;
+    input.labelText.camCurve.value = 0;
+    curve.ft = true;
+  }
+  if (curve.ft){
+    curve.meanPoint = [(app.camera[app.cameraIndex].att.translation[0]+x)/2, ((app.camera[app.cameraIndex].att.translation[1]+y)/2)+500];
+    curve.startP = [app.camera[app.cameraIndex].att.translation[0],app.camera[app.cameraIndex].att.translation[1]];
+    curve.ft = false;
+  }
+
+  var point = getPointInBezierCurve(t, curve.meanPoint, curve.startP, [x,y]);
+  app.camera[app.cameraIndex].att.translation = [point[0], point[1],  app.camera[app.cameraIndex].att.translation[2]];
+
+  setCameraAttributes();
   drawScene();
 }
 
@@ -757,23 +793,21 @@ var vector = {
   },
 }
 
-// transform from degree to radian
 function degToRad(d) {
   return d * Math.PI / 180;
 }
 function radToDeg(r) {
   return Math.ceil(r * 180 / Math.PI);
 }
-function getPointInBezierCurve(t, endP) {
-  var p0 = [app.objects[app.objectIndex].transf.translation[0],app.objects[app.objectIndex].transf.translation[1]];
-  var p1 = [0,500];
+function getPointInBezierCurve(t, meanPoint , startP, endP) {
+  var p0 = startP;
+  var p1 = meanPoint;
   var p2 = [endP[0], endP[1]];
   p2[0] = (1-t) ** 2 * p0[0] + (1-t) * 2 * t * p1[0] + t * t * p2[0];
   p2[1] = (1-t) ** 2 * p0[1] + (1-t) * 2 * t * p1[1] + t * t * p2[1];
-  return [p2[0], p2[1], app.objects[app.objectIndex].transf.translation[2]];
+  return [p2[0], p2[1]];
 }
-// set the object vertexs 
-function setObject() {
+function setObject() {  // set the object vertexs 
   app.gl.bufferData(
     app.gl.ARRAY_BUFFER,
     new Float32Array([
@@ -822,8 +856,7 @@ function setObject() {
     ]),
     app.gl.STATIC_DRAW);
 }
-// Set the object colors
-function setColors(){
+function setColors(){ // Set the object colors
   app.gl.bufferData(
     app.gl.ARRAY_BUFFER,
     new Uint8Array([
@@ -872,6 +905,6 @@ function setColors(){
     ]),
     app.gl.STATIC_DRAW
   );
-}
+} 
 
 main();
