@@ -116,7 +116,7 @@
             </div>
 
             <div class="w-100 text-center pt-5">
-                <label>TRANSLATION CURVE</label>
+                <label>CURVED OBJECT TRANSLATION</label>
             </div>
             <div class="w-50 float-left text-center">
                 <label>END POSITION</label>
@@ -229,7 +229,7 @@
             </div>
 
             <div class="w-100 text-center pt-5">
-                <label>CAMERA TRANSLATION CURVE</label>
+                <label>CURVED CAMERA TRANSLATION</label>
             </div>
             <div class="w-50 float-left text-center">
                 <label>END POSITION</label>
@@ -249,6 +249,33 @@
             <div class="float-left w-25">
                 <input type="text" id="ltc" value="0" disabled="true">
             </div>
+
+            <div class="w-100">
+                <div class="input-group pt-3 w-25 float-left">
+                    <div class="input-group-prepend">
+                    <div class="input-group-text rounded">
+                        <input type="checkbox" id="lookAt">
+                    </div>
+                    </div>
+                    <label for="lookAt" class="pl-2 pt-1">LOOK AT</label>
+                </div>
+                
+                <div class="input-group pt-3 w-75 float-left">
+                    <div class="input-group-prepend w-50">
+                        <div class="input-group-text rounded">
+                            <input type="radio" id="lPoint" disabled checked>
+                        </div>
+                        <label for="lPoint" class="pl-2 pt-1">ORIGIN POINT</label>
+                    </div>
+                    <div class="input-group-prepend w-50">
+                        <div class="input-group-text rounded">
+                            <input type="radio" id="lObject" disabled>
+                        </div>
+                        <label for="lObject" class="pl-2 pt-1">OBJECT</label>
+                    </div>
+                </div>
+            </div>
+            
         </div>
     </div>
     <div class="float-right w-50 p-3">

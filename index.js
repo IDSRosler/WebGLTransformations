@@ -58,9 +58,12 @@ var input = {
     rotationX: document.getElementById("crx"),
     rotationY: document.getElementById("cry"),
     rotationZ: document.getElementById("crz"),
-    t: document.getElementById("tc"), // control of curve
+    t: document.getElementById("tc"),
     endX: document.getElementById("ccx"),
     endY: document.getElementById("ccy"),
+    lookAt: document.getElementById("lookAt"),
+    lPoint: document.getElementById("lPoint"),
+    lObject: document.getElementById("lObject"),
   },
   labelText: {
     objTranslationX: document.getElementById("ltx"),
@@ -96,8 +99,6 @@ var app = {
   objects: [],
   cameraIndex: 0,
   camera: [],
-  meanPoint: [0,0],
-  ft: true,
 };
 
 var curve = {
@@ -139,6 +140,7 @@ class Camera {
 class Object {
   constructor() {
     this.positionBuffer = null;
+    this.shader = null;
     this.matrix = m4.createMatrix();
     this.transf = {
       translation: [0,0,0],
@@ -182,16 +184,24 @@ function drawScene() {
   );
 
   app.camera[app.cameraIndex].setMatrix();  
-  app.camera[app.cameraIndex].setCameraPosition();
+  app.camera[app.cameraIndex].setCameraPosition();  
   
-  /* //var target = [app.objects[app.objectIndex].transf.translation[0], app.objects[app.objectIndex].transf.translation[1], app.objects[app.objectIndex].transf.translation[2] * 1.2];
-
-  // Compute the camera's matrix using look at.
-  var cameraMatrix = m4.lookAt(app.camera[app.cameraIndex].att.cameraPosition, app.camera[app.cameraIndex].att.target, app.camera[app.cameraIndex].att.up);
+  if (input.camera.lookAt.checked){
+    // Compute the camera's matrix using look at.
+    if (input.camera.lPoint.checked){
+      app.camera[app.cameraIndex].att.target = [0,0,-200];
+    }
+    else{
+      app.camera[app.cameraIndex].att.target = [app.objects[app.objectIndex].transf.translation[0], app.objects[app.objectIndex].transf.translation[1], app.objects[app.objectIndex].transf.translation[2] * 1.2];
   
-  var viewMatrix = m4.inverse(cameraMatrix); */
+    }
+    var cameraMatrix = m4.lookAt(app.camera[app.cameraIndex].att.cameraPosition, app.camera[app.cameraIndex].att.target, app.camera[app.cameraIndex].att.up);
+  }
+  else{
+    var cameraMatrix = app.camera[app.cameraIndex].matrix;
+  }  
   
-  var viewMatrix = m4.inverse(app.camera[app.cameraIndex].matrix);
+  var viewMatrix = m4.inverse(cameraMatrix);
 
   var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
@@ -527,6 +537,34 @@ input.camera.t.oninput = function(e) { // Curve control
 
   setCameraAttributes();
   drawScene();
+}
+input.camera.lookAt.onchange = function(e) { // Look At
+  if (input.camera.lookAt.checked){
+    input.camera.rotationX.disabled = true;
+    input.camera.rotationY.disabled = true;
+    input.camera.rotationZ.disabled = true;
+    input.camera.lPoint.disabled = false;
+    input.camera.lObject.disabled = false;
+  }else{
+    input.camera.rotationX.disabled = false;
+    input.camera.rotationY.disabled = false;
+    input.camera.rotationZ.disabled = false;
+    input.camera.lPoint.disabled = true;
+    input.camera.lObject.disabled = true;
+  }
+  drawScene();
+}
+input.camera.lPoint.onchange = function(e) { // Origin point
+  if (input.camera.lPoint.checked){
+    input.camera.lObject.checked = false;
+  }
+  drawScene();
+}
+input.camera.lObject.onchange = function(e) { // Object
+  if (input.camera.lObject.checked){
+    input.camera.lPoint.checked = false;
+    }
+    drawScene();
 }
 
 // transformations and matrix operations for a matrix 4D
