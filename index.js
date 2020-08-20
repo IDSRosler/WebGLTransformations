@@ -34,6 +34,7 @@ void main() {
 var input = {
   object: {
     id: document.getElementById("obj"), //object id
+    animation: document.getElementById("objAnimation"), //object animation
     translationX: document.getElementById("tx"), // translation x
     translationY: document.getElementById("ty"), // translation y
     translationZ: document.getElementById("tz"), // translation z
@@ -99,6 +100,9 @@ var app = {
   objects: [],
   cameraIndex: 0,
   camera: [],
+  then: 0,
+  step: 0,
+  animation: null,
 };
 
 var curve = {
@@ -163,6 +167,120 @@ function main() {
   InitProgram();
   setCameras();
   drawScene();
+  app.animation = requestAnimationFrame(drawScene);
+}
+
+// Object Animations
+function rotationObject(now) {  // rotate a object
+  var rotationSpeed = 1.5;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.then; // Subtract the previous time from the current time  
+  app.then = now; // Remember the current time for the next frame.
+
+  if (app.objects.length > 0){
+    if (app.objects[app.objectIndex].transf.rotation[1] < degToRad(360)){
+      app.objects[app.objectIndex].transf.rotation[1] += rotationSpeed * deltaTime;
+      setAttributes();
+    }
+    else{
+      app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);
+      setAttributes();
+    }
+  } 
+
+  drawScene();
+  app.animation = requestAnimationFrame(rotationObject);
+}
+function scalingObject(now) { //  scaling object
+  var scaleUnit = 0.5;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.then; // Subtract the previous time from the current time  
+  app.then = now; // Remember the current time for the next frame.
+
+  if (app.objects.length > 0){
+    if (app.step == 0){
+      app.objects[app.objectIndex].transf.scale[0] += scaleUnit * deltaTime;
+      app.objects[app.objectIndex].transf.scale[1] += scaleUnit * deltaTime;
+      app.objects[app.objectIndex].transf.scale[2] += scaleUnit * deltaTime;
+      setAttributes();
+      if (app.objects[app.objectIndex].transf.scale[0] > 2.5){
+        app.step = 1;
+      }
+    }
+    else {
+      app.objects[app.objectIndex].transf.scale[0] -= scaleUnit * deltaTime;
+      app.objects[app.objectIndex].transf.scale[1] -= scaleUnit * deltaTime;
+      app.objects[app.objectIndex].transf.scale[2] -= scaleUnit * deltaTime;
+      setAttributes();
+      if (app.objects[app.objectIndex].transf.scale[0] < 1){
+        app.step = 0;
+      }
+    }    
+  }  
+  drawScene();
+  app.animation = requestAnimationFrame(scalingObject);
+}
+function move_rotateObject(now) { // move and rotate a object
+  var transUnit = 100;
+  var rotationSpeedX = 0.5;
+  var rotationSpeedY = 1.5;
+  var rotationSpeedZ = 2;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.then; // Subtract the previous time from the current time  
+  app.then = now; // Remember the current time for the next frame.
+
+  if (app.objects.length > 0){
+    if (app.step == 0){ // tralate x axis (positive)      
+      if (app.objects[app.objectIndex].transf.translation[0] < 300){
+        app.objects[app.objectIndex].transf.rotation[0] += rotationSpeedX * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[1] += rotationSpeedY * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[2] += rotationSpeedZ * deltaTime;
+        app.objects[app.objectIndex].transf.translation[0] += transUnit * deltaTime;
+        if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
+        setAttributes();
+      }else {app.step = 1;}      
+    }
+    if (app.step == 1) { // translate y axis (positive)
+      if (app.objects[app.objectIndex].transf.translation[1] < 400){
+        app.objects[app.objectIndex].transf.rotation[0] += rotationSpeedX * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[1] += rotationSpeedY * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[2] += rotationSpeedZ * deltaTime;
+        app.objects[app.objectIndex].transf.translation[1] += transUnit * deltaTime;        
+        if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
+        setAttributes();
+      }else {app.step = 2;} 
+    }   
+    if (app.step == 2){ // tralate x axis (negative)      
+      if (app.objects[app.objectIndex].transf.translation[0] > -300){
+        app.objects[app.objectIndex].transf.rotation[0] += rotationSpeedX * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[1] += rotationSpeedY * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[2] += rotationSpeedZ * deltaTime;
+        app.objects[app.objectIndex].transf.translation[0] -= transUnit * deltaTime;
+        if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
+        setAttributes();
+      }else {app.step = 3;}      
+    }
+    if (app.step == 3) { // translate y axis (negative)
+      if (app.objects[app.objectIndex].transf.translation[1] > -400){
+        app.objects[app.objectIndex].transf.rotation[0] += rotationSpeedX * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[1] += rotationSpeedY * deltaTime;
+        app.objects[app.objectIndex].transf.rotation[2] += rotationSpeedZ * deltaTime;
+        app.objects[app.objectIndex].transf.translation[1] -= transUnit * deltaTime;
+        if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
+        if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
+        setAttributes();
+      }else {app.step = 0;} 
+    }  
+  }  
+  drawScene();
+  app.animation = requestAnimationFrame(move_rotateObject);
 }
 
 // draw the scene
@@ -277,7 +395,7 @@ function setCameras(){
   app.camera.push(new Camera);
   app.camera.push(new Camera);
 
-  app.camera[0].att.fildOfView = degToRad(60);
+  app.camera[0].att.fildOfView = degToRad(85);
   app.camera[0].att.translation = [0,0,100];
   app.camera[0].att.rotation = [degToRad(0),degToRad(0),degToRad(0)];
 
@@ -289,11 +407,11 @@ function setCameras(){
   app.camera[2].att.translation = [-340,5,-270];
   app.camera[2].att.rotation = [degToRad(0),degToRad(-49),degToRad(0)];
 
-  app.camera[3].att.fildOfView = degToRad(60);
+  app.camera[3].att.fildOfView = degToRad(80);
   app.camera[3].att.translation = [0,500,-100];
   app.camera[3].att.rotation = [degToRad(-50),degToRad(0),degToRad(0)];
 
-  app.camera[4].att.fildOfView = degToRad(60);
+  app.camera[4].att.fildOfView = degToRad(70);
   app.camera[4].att.translation = [0,-500,-100];
   app.camera[4].att.rotation = [degToRad(50),degToRad(0),degToRad(0)];
 
@@ -472,6 +590,25 @@ input.object.t.oninput = function(e) { // Curve control
 
   setAttributes();
   drawScene();
+}
+input.object.animation.onchange = function(e){// Animation
+  console.log(e.target.value);
+  if(e.target.value == 0){
+    cancelAnimationFrame(app.animation);
+    app.animation = requestAnimationFrame(drawScene);
+  }
+  else if(e.target.value == 1){
+    cancelAnimationFrame(app.animation);
+    app.animation = requestAnimationFrame(rotationObject);
+  }
+  else if(e.target.value == 2){
+    cancelAnimationFrame(app.animation);
+    app.animation = requestAnimationFrame(scalingObject);
+  }
+  else if(e.target.value == 3){
+    cancelAnimationFrame(app.animation);
+    app.animation = requestAnimationFrame(move_rotateObject);
+  }
 }
 
 // camera control
