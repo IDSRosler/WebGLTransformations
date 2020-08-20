@@ -166,15 +166,27 @@
             <div class="w-100">
                 <label for="cam">SELECT CAMERA</label>
             </div>
-            <div class="float-left w-100 pb-3">
+            <div class="float-left w-100 pb-1">
                 <select class="custom-select" id="cam"></select>
             </div>
 
             <div class="w-100">
-                <label for="ctx">FILD OF VIEW</label>
+                <label for="obj">SELECT CAMERA ANIMATION</label>
+            </div>
+            <div class="float-left w-100 pb-2">
+                <select class="custom-select" id="camAnimation">
+                    <option value="0">None</option>
+                    <option value="1">Translate left-right</option>
+                    <option value="2">Translate up-down</option>
+                    <option value="3">Rotate 90-degrees-left and 90-degrees-right</option>
+                </select>
+            </div>
+
+            <div class="w-100">
+                <label for="ctx">ZOOM</label>
             </div>
             <div class="float-left w-75">
-                <input type="range" class="form-control-range" id="fild" min="1" max="180" value="60">
+                <input type="range" class="form-control-range" id="fild" min="1" max="170" value="60">
             </div>
             <div class="float-left w-25">
                 <input type="text" id="lfild" value="60" disabled="true">

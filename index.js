@@ -52,6 +52,7 @@ var input = {
   },
   camera: {
     id: document.getElementById("cam"), 
+    animation: document.getElementById("camAnimation"), //camera animation
     fildOfView: document.getElementById("fild"),  
     translationX: document.getElementById("ctx"), 
     translationY: document.getElementById("cty"), 
@@ -103,8 +104,12 @@ var app = {
   then: 0,
   step: 0,
   animation: null,
+  camThen: 0,
+  camStep: 0,
+  camAnimation: null,
 };
 
+// Curve control
 var curve = {
   startP: [0,0],
   meanPoint: [0,0],
@@ -180,14 +185,12 @@ function rotationObject(now) {  // rotate a object
   if (app.objects.length > 0){
     if (app.objects[app.objectIndex].transf.rotation[1] < degToRad(360)){
       app.objects[app.objectIndex].transf.rotation[1] += rotationSpeed * deltaTime;
-      setAttributes();
     }
     else{
       app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);
-      setAttributes();
     }
   } 
-
+  setAttributes();
   drawScene();
   app.animation = requestAnimationFrame(rotationObject);
 }
@@ -202,7 +205,6 @@ function scalingObject(now) { //  scaling object
       app.objects[app.objectIndex].transf.scale[0] += scaleUnit * deltaTime;
       app.objects[app.objectIndex].transf.scale[1] += scaleUnit * deltaTime;
       app.objects[app.objectIndex].transf.scale[2] += scaleUnit * deltaTime;
-      setAttributes();
       if (app.objects[app.objectIndex].transf.scale[0] > 2.5){
         app.step = 1;
       }
@@ -211,12 +213,12 @@ function scalingObject(now) { //  scaling object
       app.objects[app.objectIndex].transf.scale[0] -= scaleUnit * deltaTime;
       app.objects[app.objectIndex].transf.scale[1] -= scaleUnit * deltaTime;
       app.objects[app.objectIndex].transf.scale[2] -= scaleUnit * deltaTime;
-      setAttributes();
       if (app.objects[app.objectIndex].transf.scale[0] < 1){
         app.step = 0;
       }
     }    
   }  
+  setAttributes();
   drawScene();
   app.animation = requestAnimationFrame(scalingObject);
 }
@@ -239,7 +241,6 @@ function move_rotateObject(now) { // move and rotate a object
         if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
-        setAttributes();
       }else {app.step = 1;}      
     }
     if (app.step == 1) { // translate y axis (positive)
@@ -251,7 +252,6 @@ function move_rotateObject(now) { // move and rotate a object
         if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
-        setAttributes();
       }else {app.step = 2;} 
     }   
     if (app.step == 2){ // tralate x axis (negative)      
@@ -263,7 +263,6 @@ function move_rotateObject(now) { // move and rotate a object
         if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
-        setAttributes();
       }else {app.step = 3;}      
     }
     if (app.step == 3) { // translate y axis (negative)
@@ -275,16 +274,77 @@ function move_rotateObject(now) { // move and rotate a object
         if (app.objects[app.objectIndex].transf.rotation[0] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[0] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[1] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[1] = degToRad(0);}
         if (app.objects[app.objectIndex].transf.rotation[2] > degToRad(359)) {app.objects[app.objectIndex].transf.rotation[2] = degToRad(0);}
-        setAttributes();
       }else {app.step = 0;} 
     }  
   }  
+  setAttributes();
   drawScene();
   app.animation = requestAnimationFrame(move_rotateObject);
 }
 
-// draw the scene
-function drawScene() {
+// Camera Animations
+function camTranslateLeftRigth(now) {  // camera translation left rigth
+  var transUnit = 80;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.camThen; // Subtract the previous time from the current time  
+  app.camThen = now; // Remember the current time for the next frame.
+
+  if (app.camStep == 0){ // translate left
+    if (app.camera[app.cameraIndex].att.translation[0] > -400){
+      app.camera[app.cameraIndex].att.translation[0] -= transUnit * deltaTime;
+    }else {app.camStep = 1;}
+  }
+  if (app.camStep == 1){ // translate right
+    if (app.camera[app.cameraIndex].att.translation[0] < 400){
+      app.camera[app.cameraIndex].att.translation[0] += transUnit * deltaTime;
+    }else {app.camStep = 0;}
+  }
+  setCameraAttributes();
+  drawScene();
+  app.camAnimation = requestAnimationFrame(camTranslateLeftRigth);
+}
+function camTranslateUpDown(now) {  // camera translation up down
+  var transUnit = 80;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.camThen; // Subtract the previous time from the current time  
+  app.camThen = now; // Remember the current time for the next frame.
+
+  if (app.camStep == 0){ // translate up
+    if (app.camera[app.cameraIndex].att.translation[1] > -400){
+      app.camera[app.cameraIndex].att.translation[1] -= transUnit * deltaTime;
+    }else {app.camStep = 1;}
+  }
+  if (app.camStep == 1){ // translate down
+    if (app.camera[app.cameraIndex].att.translation[1] < 400){
+      app.camera[app.cameraIndex].att.translation[1] += transUnit * deltaTime;
+    }else {app.camStep = 0;}
+  }
+  setCameraAttributes();
+  drawScene();
+  app.camAnimation = requestAnimationFrame(camTranslateUpDown);
+}
+function camRotation(now) {  // camera rotate 90 degrees left and rotate 90 degrees right in z axis 
+  var rotationSpeed = 0.5;
+  now *= 0.001;  // Convert to seconds
+  var deltaTime = now - app.camThen; // Subtract the previous time from the current time  
+  app.camThen = now; // Remember the current time for the next frame.
+
+  if (app.camStep == 0) { // left rotate
+    if (app.camera[app.cameraIndex].att.rotation[2] > degToRad(-90)) {
+      app.camera[app.cameraIndex].att.rotation[2] -= rotationSpeed * deltaTime;
+    }else {app.camStep = 1;}
+  }
+  if (app.camStep == 1) { // roght rotate
+    if (app.camera[app.cameraIndex].att.rotation[2] < degToRad(90)) {
+      app.camera[app.cameraIndex].att.rotation[2] += rotationSpeed * deltaTime;
+    }else {app.camStep = 0;}
+  }
+  setCameraAttributes();
+  drawScene();
+  app.camAnimation = requestAnimationFrame(camRotation);
+}
+
+function drawScene() {  // draw the scene
   webglUtils.resizeCanvasToDisplaySize(app.gl.canvas);
   app.gl.viewport(0, 0, app.gl.canvas.width, app.gl.canvas.height);   // Tell WebGL how to convert from clip space to pixels
   app.gl.clearColor(0, 0, 0, 1);                                      // Clear the canvas
@@ -337,8 +397,7 @@ function drawScene() {
     app.gl.drawArrays(primitiveType, offset, count);
   })
 }
-// init program
-function InitProgram(){
+function InitProgram(){ // init program
   app.canvas = document.querySelector("#canvas");
   app.gl = app.canvas.getContext("webgl2");
   if (!app.gl) {return;}
@@ -349,7 +408,6 @@ function InitProgram(){
   app.colorAttributeLocation = app.gl.getAttribLocation(app.program, "a_color");
   app.matrixLocation = app.gl.getUniformLocation(app.program, "u_matrix");             // look up uniform locations
 }
-//
 function createNewObject() { // return the index object
   app.objects.push( new Object() );
   app.objects[app.objects.length - 1].positionBuffer = app.gl.createBuffer();                  // Create a buffer
@@ -371,8 +429,7 @@ function createNewObject() { // return the index object
   
   return (app.objects.length - 1)
 }
-// set color
-function SetObjectColor(){
+function SetObjectColor(){  // set color
   var colorBuffer = app.gl.createBuffer();              // create the color buffer, make it the current ARRAY_BUFFER
   app.gl.bindBuffer(app.gl.ARRAY_BUFFER, colorBuffer);
   
@@ -387,8 +444,7 @@ function SetObjectColor(){
   var offset = 0;                           // start at the beginning of the buffer
   app.gl.vertexAttribPointer(app.colorAttributeLocation, size, type, normalize, stride, offset);
 }
-
-function setCameras(){
+function setCameras(){  // set cameras
   app.camera.push(new Camera);
   app.camera.push(new Camera);
   app.camera.push(new Camera);
@@ -426,8 +482,7 @@ function setCameras(){
 
   app.cameraIndex = 0;
 }
-
-function setAttributes(){
+function setAttributes(){ // set inputs of objects
     // Set transitions
     input.object.translationX.value = String(app.objects[app.objectIndex].transf.translation[0]);
     input.labelText.objTranslationX.value = String(app.objects[app.objectIndex].transf.translation[0]);
@@ -451,8 +506,7 @@ function setAttributes(){
     input.object.scaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
     input.labelText.objScaleZ.value = String(app.objects[app.objectIndex].transf.scale[2]);
 }
-
-function setCameraAttributes(){
+function setCameraAttributes(){ // set inputs of cameras
   // Set fild of view
   input.camera.fildOfView.value = String(radToDeg(app.camera[app.cameraIndex].att.fildOfView));
   input.labelText.camFildOfView.value = String(radToDeg(app.camera[app.cameraIndex].att.fildOfView));
@@ -472,7 +526,7 @@ function setCameraAttributes(){
   input.labelText.camRotationZ.value = String(radToDeg(app.camera[app.cameraIndex].att.rotation[2]));
 }
 
-// input control
+// objects control
 input.object.id.onchange = function(e) {
   app.objectIndex = Number(e.target.value);
   setAttributes();
@@ -595,18 +649,22 @@ input.object.animation.onchange = function(e){// Animation
   console.log(e.target.value);
   if(e.target.value == 0){
     cancelAnimationFrame(app.animation);
+    app.step = 0;
     app.animation = requestAnimationFrame(drawScene);
   }
   else if(e.target.value == 1){
     cancelAnimationFrame(app.animation);
+    app.step = 0;
     app.animation = requestAnimationFrame(rotationObject);
   }
   else if(e.target.value == 2){
     cancelAnimationFrame(app.animation);
+    app.step = 0;
     app.animation = requestAnimationFrame(scalingObject);
   }
   else if(e.target.value == 3){
     cancelAnimationFrame(app.animation);
+    app.step = 0;
     app.animation = requestAnimationFrame(move_rotateObject);
   }
 }
@@ -702,6 +760,29 @@ input.camera.lObject.onchange = function(e) { // Object
     input.camera.lPoint.checked = false;
     }
     drawScene();
+}
+input.camera.animation.onchange = function(e){// Animation
+  console.log(e.target.value);
+  if(e.target.value == 0){
+    cancelAnimationFrame(app.camAnimation);
+    app.camStep = 0;
+    app.camAnimation = requestAnimationFrame(drawScene);
+  }
+  else if(e.target.value == 1){
+    cancelAnimationFrame(app.camAnimation);
+    app.camStep = 0;
+    app.camAnimation = requestAnimationFrame(camTranslateLeftRigth);
+  }
+  else if(e.target.value == 2){
+    cancelAnimationFrame(app.camAnimation);
+    app.camStep = 0;
+    app.camAnimation = requestAnimationFrame(camTranslateUpDown);
+  }
+  else if(e.target.value == 3){
+    cancelAnimationFrame(app.camAnimation);
+    app.camStep = 0;
+    app.camAnimation = requestAnimationFrame(camRotation);
+  }
 }
 
 // transformations and matrix operations for a matrix 4D
@@ -947,6 +1028,7 @@ var m4 = {
   },
 };
 
+// operations for vectors
 var vector = {
   crossProduct: function(a,b){
     return [
@@ -968,13 +1050,14 @@ var vector = {
   },
 }
 
-function degToRad(d) {
+// utilities
+function degToRad(d) { // degree to radian
   return d * Math.PI / 180;
 }
-function radToDeg(r) {
+function radToDeg(r) { // radian to degree
   return Math.ceil(r * 180 / Math.PI);
 }
-function getPointInBezierCurve(t, meanPoint , startP, endP) {
+function getPointInBezierCurve(t, meanPoint , startP, endP) { // Bezier curve
   var p0 = startP;
   var p1 = meanPoint;
   var p2 = [endP[0], endP[1]];
