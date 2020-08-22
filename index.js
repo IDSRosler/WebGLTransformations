@@ -44,6 +44,12 @@ var input = {
     scaleX: document.getElementById("sx"), // scale x
     scaleY: document.getElementById("sy"), // scale y
     scaleZ: document.getElementById("sz"), // scale z
+    px: document.getElementById("px"), // rotation x
+    py: document.getElementById("py"), // rotation y
+    pz: document.getElementById("pz"), // rotation z
+    rotationXp: document.getElementById("rxp"), // rotation x
+    rotationYp: document.getElementById("ryp"), // rotation y
+    rotationZp: document.getElementById("rzp"), // rotation z
     addObject: document.getElementById("add"), // add
     delObject: document.getElementById("del"), // delete
     t: document.getElementById("t"), // control of curve
@@ -60,6 +66,12 @@ var input = {
     rotationX: document.getElementById("crx"),
     rotationY: document.getElementById("cry"),
     rotationZ: document.getElementById("crz"),
+    px: document.getElementById("cpx"), // rotation x
+    py: document.getElementById("cpy"), // rotation y
+    pz: document.getElementById("cpz"), // rotation z
+    rotationXp: document.getElementById("crxp"), // rotation x
+    rotationYp: document.getElementById("cryp"), // rotation y
+    rotationZp: document.getElementById("crzp"), // rotation z
     t: document.getElementById("tc"),
     endX: document.getElementById("ccx"),
     endY: document.getElementById("ccy"),
@@ -77,6 +89,9 @@ var input = {
     objScaleX: document.getElementById("lsx"),
     objScaleY: document.getElementById("lsy"),
     objScaleZ: document.getElementById("lsz"),
+    objRotationXp: document.getElementById("lrxp"),
+    objRotationYp: document.getElementById("lryp"),
+    objRotationZp: document.getElementById("lrzp"),
     objCurve: document.getElementById("lt"),
     camFildOfView: document.getElementById("lfild"),
     camTranslationX: document.getElementById("lctx"),
@@ -86,6 +101,9 @@ var input = {
     camRotationY: document.getElementById("lcry"),
     camRotationZ: document.getElementById("lcrz"),
     camCurve: document.getElementById("ltc"),
+    camRotationXp: document.getElementById("lcrxp"),
+    camRotationYp: document.getElementById("lcryp"),
+    camRotationZp: document.getElementById("lcrzp"),
   },
 };
 
@@ -646,7 +664,6 @@ input.object.t.oninput = function(e) { // Curve control
   drawScene();
 }
 input.object.animation.onchange = function(e){// Animation
-  console.log(e.target.value);
   if(e.target.value == 0){
     cancelAnimationFrame(app.animation);
     app.step = 0;
@@ -667,6 +684,42 @@ input.object.animation.onchange = function(e){// Animation
     app.step = 0;
     app.animation = requestAnimationFrame(move_rotateObject);
   }
+}
+input.object.rotationXp.oninput = function(e){// Rotation x point
+  input.labelText.objRotationXp.value = e.target.value;
+  var px = Number(input.object.px.value);
+  var py = Number(input.object.py.value);
+  var pz = Number(input.object.pz.value);
+  app.objects[app.objectIndex].transf.translation = [px, py, pz];
+  drawScene();
+  app.objects[app.objectIndex].transf.rotation[0] = degToRad(Number(e.target.value));
+  drawScene();
+  app.objects[app.objectIndex].transf.translation = [-px, -py, -pz];
+  drawScene();
+}
+input.object.rotationYp.oninput = function(e){// Rotation y point
+  input.labelText.objRotationYp.value = e.target.value;
+  var px = Number(input.object.px.value);
+  var py = Number(input.object.py.value);
+  var pz = Number(input.object.pz.value);
+  app.objects[app.objectIndex].transf.translation = [px, py, pz];
+  drawScene();
+  app.objects[app.objectIndex].transf.rotation[1] = degToRad(Number(e.target.value));
+  drawScene();
+  app.objects[app.objectIndex].transf.translation = [-px, -py, -pz];
+  drawScene();
+}
+input.object.rotationZp.oninput = function(e){// Rotation x point
+  input.labelText.objRotationZp.value = e.target.value;
+  var px = Number(input.object.px.value);
+  var py = Number(input.object.py.value);
+  var pz = Number(input.object.pz.value);
+  app.objects[app.objectIndex].transf.translation = [px, py, pz];
+  drawScene();
+  app.objects[app.objectIndex].transf.rotation[2] = degToRad(Number(e.target.value));
+  drawScene();
+  app.objects[app.objectIndex].transf.translation = [-px, -py, -pz];
+  drawScene();
 }
 
 // camera control
@@ -783,6 +836,42 @@ input.camera.animation.onchange = function(e){// Animation
     app.camStep = 0;
     app.camAnimation = requestAnimationFrame(camRotation);
   }
+}
+input.camera.rotationXp.oninput = function(e){// Rotation x point
+  input.labelText.camRotationXp.value = e.target.value;
+  var px = Number(input.camera.px.value);
+  var py = Number(input.camera.py.value);
+  var pz = Number(input.camera.pz.value);
+  app.camera[app.cameraIndex].att.translation = [px, py, pz];
+  drawScene();
+  app.camera[app.cameraIndex].att.rotation[0] = degToRad(Number(e.target.value));
+  drawScene();
+  app.camera[app.cameraIndex].att.translation = [-px, -py, -pz];
+  drawScene();
+}
+input.camera.rotationYp.oninput = function(e){// Rotation y point
+  input.labelText.camRotationYp.value = e.target.value;
+  var px = Number(input.camera.px.value);
+  var py = Number(input.camera.py.value);
+  var pz = Number(input.camera.pz.value);
+  app.camera[app.cameraIndex].att.translation = [px, py, pz];
+  drawScene();
+  app.camera[app.cameraIndex].att.rotation[1] = degToRad(Number(e.target.value));
+  drawScene();
+  app.camera[app.cameraIndex].att.translation = [-px, -py, -pz];
+  drawScene();
+}
+input.camera.rotationZp.oninput = function(e){// Rotation x point
+  input.labelText.camRotationYp.value = e.target.value;
+  var px = Number(input.camera.px.value);
+  var py = Number(input.camera.py.value);
+  var pz = Number(input.camera.pz.value);
+  app.camera[app.cameraIndex].att.translation = [px, py, pz];
+  drawScene();
+  app.camera[app.cameraIndex].att.rotation[2] = degToRad(Number(e.target.value));
+  drawScene();
+  app.camera[app.cameraIndex].att.translation = [-px, -py, -pz];
+  drawScene();
 }
 
 // transformations and matrix operations for a matrix 4D
@@ -1070,47 +1159,47 @@ function setObject() {  // set the object vertexs
     app.gl.ARRAY_BUFFER,
     new Float32Array([
       // front
-      -40, 40, 0,
-      40,40, 0,
-      -40, -40,0,
-      -40, -40,0,
-      40,-40, 0,
-      40,40,0,
+      -40, 40, -40,
+      40,40, -40,
+      -40, -40,-40,
+      -40, -40,-40,
+      40,-40, -40,
+      40,40,-40,
       // back
-      -40, 40, 80,
-      40,40, 80,
-      -40, -40, 80,
-      -40, -40, 80,
-      40,-40, 80,
-      40,40, 80,     
+      -40, 40, 40,
+      40,40, 40,
+      -40, -40, 40,
+      -40, -40, 40,
+      40,-40, 40,
+      40,40, 40,     
       // top
-      -40,  40,  0,
-      -40,  40,  80,
-      40, 40,  80,
-      40, 40,  80,
-      40, 40,  0,
-      -40,  40,  0,     
+      -40,  40,  -40,
+      -40,  40,  40,
+      40, 40,  40,
+      40, 40,  40,
+      40, 40,  -40,
+      -40,  40,  -40,     
       // botton
-      -40,  -40, 0,
-      -40, -40, 80,
-      40,  -40, 80,
-      40,  -40, 80,
-      40, -40, 0,
-      -40,  -40, 0,      
+      -40,  -40, -40,
+      -40, -40, 40,
+      40,  -40, 40,
+      40,  -40, 40,
+      40, -40, -40,
+      -40,  -40, -40,      
       //left
-      -40,  40,  0,
-      -40,  40,  80,
-      -40,  -40, 80,
-      -40,  -40, 80,
-      -40,  -40, 0,
-      -40,  40,  0,      
+      -40,  40,  -40,
+      -40,  40,  40,
+      -40,  -40, 40,
+      -40,  -40, 40,
+      -40,  -40, -40,
+      -40,  40,  -40,      
       //rigth
-      40,  40,  0,
-      40,  40,  80,
-      40,  -40, 80,
-      40,  -40, 80,
-      40,  -40, 0,
-      40,  40,  0, 
+      40,  40,  -40,
+      40,  40,  40,
+      40,  -40, 40,
+      40,  -40, 40,
+      40,  -40, -40,
+      40,  40,  -40, 
     ]),
     app.gl.STATIC_DRAW);
 }
