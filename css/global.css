@@ -16,4 +16,8 @@ canvas {
 .h-90 {
   height: 90vh;
 }
+
+.w100 {
+  width: 100%;
+}
   
